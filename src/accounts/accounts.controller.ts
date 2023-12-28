@@ -92,11 +92,11 @@ const AccountsController = {
                     email,
                 })}`,
             );
-            if (!phoneNumber || !fullName || !email || !password) {
+            if (!fullName || !email || !password) {
                 throw Error('Missing required information');
             }
             const existingAccount = await Accounts.findOne({
-                $or: [{ phoneNumber }, { email }],
+                $or: [{ email }],
             });
             if (existingAccount) {
                 throw Error(
@@ -109,7 +109,6 @@ const AccountsController = {
             const hashedPassword = await bcrypt.hash(request.body.password, 10);
             const account = await Accounts.create({
                 email,
-                phoneNumber,
                 apiKey: apiKey,
                 fullName,
                 password: hashedPassword,

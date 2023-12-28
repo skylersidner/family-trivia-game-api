@@ -4,6 +4,6 @@ services:
   mongo:
     image: mongo
     restart: always
-    container_name: 'emerald-sports'
+    container_name: 'trivia'
     ports:
       - '27022:27017'

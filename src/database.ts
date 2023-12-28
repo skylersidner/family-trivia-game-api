@@ -3,7 +3,7 @@ import { connect } from 'mongoose';
 // mongoose.set('debug', true)
 const baseDatabaseUrl = 'mongodb://localhost:27022';
 const databaseUrl =
-    process.env.MONGO_URL || `${baseDatabaseUrl}/emerald-sports`;
+    process.env.MONGO_URL || `${baseDatabaseUrl}/trivia`;
 const createMongooseConnection = async () => {
     await connect(databaseUrl);
 };
