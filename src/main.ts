@@ -34,7 +34,7 @@ try {
     app.use(Sentry.Handlers.tracingHandler());
 
     const origin = isProduction
-        ? 'https://family-trivia.onrender.com/' // This needs to be the ui that is calling the API.  Can be the onrender or custom domain
+        ? 'https://family-trivia.onrender.com'
         : 'http://localhost:5000';
     // CORS
     app.use(
