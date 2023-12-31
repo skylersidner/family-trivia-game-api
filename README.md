@@ -9,3 +9,4 @@ API to manage the Family Trivia App
 3. Install Docker Desktop
 4. Run `docker-compose up -d`
 5. Run `npm run dev`
+
