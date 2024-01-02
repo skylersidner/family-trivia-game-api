@@ -1,13 +1,13 @@
 import express from 'express';
 import cors from 'cors';
-import createMongooseConnection, { databaseUrl } from './database';
+import createMongooseConnection from './database';
 import AccountRoutes from './accounts/accounts.routes';
 import PublicRoutes from './public/public.routes';
 import ErrorHandler from '../error.handler';
 import * as Sentry from '@sentry/node';
 import AuthenticationRoutes from './authentication/authentication.routes';
 import { omit } from 'lodash';
-import EventsRoutes from './events/events.routes';
+import GamesRoutes from './games/games.routes';
 import { IAccount } from './models/accounts';
 import { Server } from 'socket.io';
 import jwt from 'jsonwebtoken';
@@ -71,7 +71,7 @@ try {
     });
 
     PublicRoutes(app);
-    EventsRoutes(app);
+    GamesRoutes(app);
     AuthenticationRoutes(app);
     AccountRoutes(app);
 

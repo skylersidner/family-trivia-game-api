@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from 'express';
 import * as Sentry from '@sentry/node';
-import Events from '../models/events';
+import Games from '../models/game';
 
-const EventsController = {
+const GamesController = {
     update: async (
         request: Request,
         response: Response,
@@ -18,7 +18,7 @@ const EventsController = {
                 console.log('session user id: ', request.user?._id);
                 throw Error('You are not authorized to update this account');
             }
-            const updatedEvent = await Events.findOneAndUpdate(
+            const updatedEvent = await Games.findOneAndUpdate(
                 { gameId },
                 { ...update, updatedBy: request.user?._id },
                 { new: true },
@@ -43,7 +43,7 @@ const EventsController = {
                     'User is not authorized to create an event',
                 );
             }
-            const createdEvent = await Events.create({
+            const createdEvent = await Games.create({
                 ...newEvent,
                 createdBy: request.user?._id,
             });
@@ -56,4 +56,4 @@ const EventsController = {
     },
 };
 
-export default EventsController;
+export default GamesController;

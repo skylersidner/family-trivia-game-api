@@ -1,4 +1,4 @@
-import Events from '../models/events';
+import Events from '../models/game';
 const publicPath = `/public`;
 
 const PublicRoutes = (app: any) => {
