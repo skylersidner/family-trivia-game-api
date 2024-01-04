@@ -62,14 +62,13 @@ try {
         }
     });
 
-
     app.use(express.json());
     app.use((req, res, next) => {
         console.log('Request made to: ', req.url);
         console.log('Request body: ', omit(req.body, ['password']));
         next();
     });
-
+    // SocketRoutes(app);
     PublicRoutes(app);
     GamesRoutes(app);
     AuthenticationRoutes(app);
@@ -99,6 +98,9 @@ try {
         console.log('a user connected');
         socket.on('disconnect', () => {
             console.log('user disconnected');
+        });
+        socket.on('join-game', () => {
+            console.log('user joined game');
         });
     });
 } catch (error) {
