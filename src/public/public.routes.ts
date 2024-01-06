@@ -12,8 +12,8 @@ const PublicRoutes = (app: any) => {
             throw new Error('Sentry Error Debug');
         }
     });
-    app.get(`${publicPath}/events`, async (request: any, response: any) => {
-        console.log(`${publicPath}/events was called`);
+    app.get(`${publicPath}/games`, async (request: any, response: any) => {
+        console.log(`${publicPath}/games was called`);
         const events = await Events.find({}).populate(
             'createdBy',
             'fullName email',
