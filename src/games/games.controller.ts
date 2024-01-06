@@ -49,6 +49,7 @@ const GamesController = {
                 ...newEvent,
                 createdBy: request.user?._id,
             });
+            await createdEvent.populate('createdBy');
 
             return response.json(createdEvent);
         } catch (e) {
