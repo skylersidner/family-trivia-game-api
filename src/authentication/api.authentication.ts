@@ -17,6 +17,18 @@ const ApiAuthentication = {
         }
         return response.status(401).json({});
     },
+    requiresAuthentication(
+        request: Request,
+        response: Response,
+        next: NextFunction,
+    ): any {
+        if (request.user) {
+            return next();
+        }
+        return response
+            .status(401)
+            .json({ message: 'User is not authenticated' });
+    },
 };
 
 export default ApiAuthentication;

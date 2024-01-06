@@ -6,7 +6,7 @@ export interface IGame extends IAudit {
     _id: ObjectId;
     status: string;
     title: string;
-    start?: Date;
+    startDate?: Date;
     questions?: PopulatedDoc<IQuestion>;
     currentPlayerCount: number;
 }
@@ -15,7 +15,7 @@ const gameSchema = new Schema<IGame>(
     {
         status: { type: String },
         title: { type: String },
-        start: { type: Date, required: false, default: Date.now() },
+        startDate: { type: Date, required: false, default: Date.now() },
         createdBy: { type: Schema.Types.ObjectId, ref: 'Account' },
         updatedBy: { type: Schema.Types.ObjectId, ref: 'Account' },
         questions: [{ type: Schema.Types.ObjectId, ref: 'Question' }],

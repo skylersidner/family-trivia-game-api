@@ -2,18 +2,27 @@ import { Schema, model, ObjectId, PopulatedDoc } from 'mongoose';
 import IAudit from './interfaces/audit.interfaces';
 import { IAccount } from './accounts';
 
-
-export interface IAnswer extends IAudit{
+export interface IAnswer extends IAudit {
     _id: ObjectId;
     text: string;
-    selectedBy: PopulatedDoc<IAccount>;
+    selectedBy?: PopulatedDoc<IAccount>;
+    isCorrect: boolean;
 }
 
 const answerSchema = new Schema<IAnswer>(
     {
-        text: { type: String },
-        createdBy: { type: Schema.Types.ObjectId, ref: 'Account' },
-        updatedBy: { type: Schema.Types.ObjectId, ref: 'Account' },
+        text: { type: String, required: true },
+        isCorrect: { type: Boolean, default: false, required: true },
+        createdBy: {
+            type: Schema.Types.ObjectId,
+            ref: 'Account',
+            required: true,
+        },
+        updatedBy: {
+            type: Schema.Types.ObjectId,
+            ref: 'Account',
+            required: true,
+        },
         selectedBy: { type: Schema.Types.ObjectId, ref: 'Account' },
     },
     { timestamps: true },

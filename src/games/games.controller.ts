@@ -1,6 +1,8 @@
 import { NextFunction, Request, Response } from 'express';
 import * as Sentry from '@sentry/node';
-import Games from '../models/game';
+import Games from '../models/games';
+import Questions from '../models/questions';
+import Answers, { IAnswer } from '../models/answers';
 
 const GamesController = {
     update: async (
@@ -52,6 +54,60 @@ const GamesController = {
         } catch (e) {
             next(e);
             Sentry.captureMessage('Failed to create event update');
+        }
+    },
+    getGameById: async (
+        request: Request,
+        response: Response,
+        next: NextFunction,
+    ) => {
+        // Later we can check to see if the game is private and if the user is authorized to view it
+        try {
+            const { gameId } = request.params;
+            const game = await Games.findById(gameId).populate('questions');
+
+            return response.json(game);
+        } catch (e) {
+            next(e);
+            Sentry.captureMessage('Failed to find game');
+        }
+    },
+    addQuestion: async (
+        request: Request,
+        response: Response,
+        next: NextFunction,
+    ) => {
+        const user = request.user;
+        try {
+            const { gameId } = request.params;
+            const { questionText, answers } = request.body;
+            const answersToCreate = answers.map((answer: IAnswer) => ({
+                text: answer.text,
+                isCorrect: answer.isCorrect,
+                createdBy: user?._id,
+                updatedBy: user?._id,
+            }));
+            const createdAnswers = await Answers.insertMany(answersToCreate);
+            const question = await Questions.create({
+                text: questionText,
+                answers: createdAnswers.map((answer) => answer._id),
+            });
+            const game = await Games.findOneAndUpdate(
+                {
+                    _id: gameId,
+                },
+                {
+                    $push: {
+                        questions: question._id,
+                    },
+                },
+                { new: true },
+            );
+
+            return response.json(game);
+        } catch (e) {
+            next(e);
+            Sentry.captureMessage('Failed to find game');
         }
     },
 };
