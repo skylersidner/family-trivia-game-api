@@ -64,7 +64,13 @@ const GamesController = {
         // Later we can check to see if the game is private and if the user is authorized to view it
         try {
             const { gameId } = request.params;
-            const game = await Games.findById(gameId).populate('questions');
+            const game = await Games.findById(gameId).populate({
+                path: 'questions',
+                populate: {
+                    path: 'answers',
+                    select: '-isCorrect',
+                },
+            });
 
             return response.json(game);
         } catch (e) {
