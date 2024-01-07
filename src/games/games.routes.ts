@@ -1,18 +1,18 @@
 import GamesController from './games.controller';
 import ApiAuthentication from '../authentication/api.authentication';
-const gamesRoutes = `/api/games`;
+const gamesPath = `/api/games`;
 
 const GamesRoutes = (app: any) => {
-    app.post(`${gamesRoutes}/:gameId/update`, GamesController.update);
-    app.post(`${gamesRoutes}/create`, GamesController.create);
-    app.get(`${gamesRoutes}/:gameId`, GamesController.getGameById);
+    app.patch(`${gamesPath}/:gameId`, GamesController.update);
+    app.post(`${gamesPath}/create`, GamesController.create);
+    app.get(`${gamesPath}/:gameId`, GamesController.getGameById);
     app.post(
-        `${gamesRoutes}/:gameId/question`,
+        `${gamesPath}/:gameId/question`,
         ApiAuthentication.requiresAuthentication,
         GamesController.addQuestion,
     );
     app.post(
-        `${gamesRoutes}/:gameId/question/:questionId/answer`,
+        `${gamesPath}}/:gameId/question/:questionId/answer`,
         ApiAuthentication.requiresAuthentication,
         GamesController.answerQuestion,
     );

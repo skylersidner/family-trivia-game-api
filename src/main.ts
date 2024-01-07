@@ -54,10 +54,13 @@ try {
                 if (user) {
                     request.user = user;
                 }
+            } else {
+                console.log('No token found on request')
             }
             next();
         } catch (error) {
             console.log({ message: 'Error verifying token' });
+            console.log('error: ', error)
             return response.status(401).json({ message: 'Session expired' });
         }
     });

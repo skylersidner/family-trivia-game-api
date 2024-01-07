@@ -6,6 +6,7 @@ import ApiKeys from '../models/api.keys';
 import { ObjectId } from 'mongodb';
 import bcrypt from 'bcrypt';
 import { omit } from 'lodash';
+import Games from "../models/games";
 
 const MAX_ACCOUNTS = 50;
 
@@ -117,6 +118,32 @@ const AccountsController = {
         } catch (e) {
             next(e);
             Sentry.captureMessage('Failed to create account');
+        }
+    },
+    me: async (
+        request: Request,
+        response: Response,
+        next: NextFunction,
+    ) => {
+        try {
+            return response.json(request.user);
+        } catch (e) {
+            next(e);
+            Sentry.captureMessage(`Failed to return user`);
+        }
+    },
+    getAllGamesByAccountId: async (
+        request: Request,
+        response: Response,
+        next: NextFunction,
+    ) => {
+        const { accountId } = request.params;
+        try {
+            const result = await Games.find({ createdBy: accountId }).exec();
+            return response.json(result || []);
+        } catch (e) {
+            next(e);
+            Sentry.captureMessage(`Failed to fetch games for accountId: ${accountId}`);
         }
     },
 };
