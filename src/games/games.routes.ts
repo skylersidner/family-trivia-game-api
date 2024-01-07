@@ -11,6 +11,11 @@ const GamesRoutes = (app: any) => {
         ApiAuthentication.requiresAuthentication,
         GamesController.addQuestion,
     );
+    app.post(
+        `${gamesRoutes}/:gameId/question/:questionId/answer`,
+        ApiAuthentication.requiresAuthentication,
+        GamesController.answerQuestion,
+    );
 };
 
 export default GamesRoutes;

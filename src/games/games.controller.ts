@@ -117,6 +117,27 @@ const GamesController = {
             Sentry.captureMessage('Failed to find game');
         }
     },
+    answerQuestion: async (
+        request: Request,
+        response: Response,
+        next: NextFunction,
+    ) => {
+        try {
+            const user = request.user;
+            const { answerId } = request.body;
+            const answer = await Answers.findOneAndUpdate(
+                { _id: answerId },
+                {
+                    $addToSet: { selectedBy: user?._id },
+                },
+            );
+
+            return response.json({});
+        } catch (e) {
+            next(e);
+            Sentry.captureMessage('Failed to find game');
+        }
+    },
 };
 
 export default GamesController;
