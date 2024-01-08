@@ -7,9 +7,9 @@ const GamesRoutes = (app: any) => {
     app.post(`${gamesPath}/create`, GamesController.create);
     app.get(`${gamesPath}/:gameId`, GamesController.getGameById);
     app.post(
-        `${gamesPath}/:gameId/question`,
+        `${gamesPath}/:gameId/questions`,
         ApiAuthentication.requiresAuthentication,
-        GamesController.addQuestion,
+        GamesController.addQuestions,
     );
     app.post(
         `${gamesPath}}/:gameId/question/:questionId/answer`,

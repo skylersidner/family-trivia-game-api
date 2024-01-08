@@ -79,7 +79,7 @@ const GamesController = {
             Sentry.captureMessage('Failed to find game');
         }
     },
-    addQuestion: async (
+    addQuestions: async (
         request: Request,
         response: Response,
         next: NextFunction,
@@ -87,29 +87,36 @@ const GamesController = {
         const user = request.user;
         try {
             const { gameId } = request.params;
-            const { questionText, answers } = request.body;
-            const answersToCreate = answers.map((answer: IAnswer) => ({
-                text: answer.text,
-                isCorrect: answer.isCorrect,
-                createdBy: user?._id,
-                updatedBy: user?._id,
-            }));
-            const createdAnswers = await Answers.insertMany(answersToCreate);
-            const question = await Questions.create({
-                text: questionText,
-                answers: createdAnswers.map((answer) => answer._id),
-            });
-            const game = await Games.findOneAndUpdate(
-                {
-                    _id: gameId,
-                },
-                {
-                    $push: {
-                        questions: question._id,
+            const questions = request.body;
+            let game;
+            for (const question of questions) {
+                const { questionText, answers } = question;
+
+                const answersToCreate = answers.map((answer: IAnswer) => ({
+                    text: answer.text,
+                    isCorrect: answer.isCorrect,
+                    createdBy: user?._id,
+                    updatedBy: user?._id,
+                }));
+                const createdAnswers = await Answers.insertMany(
+                    answersToCreate,
+                );
+                const createdQuestion = await Questions.create({
+                    text: questionText,
+                    answers: createdAnswers.map((answer) => answer._id),
+                });
+                game = await Games.findOneAndUpdate(
+                    {
+                        _id: gameId,
                     },
-                },
-                { new: true },
-            );
+                    {
+                        $push: {
+                            questions: createdQuestion._id,
+                        },
+                    },
+                    { new: true },
+                );
+            }
 
             return response.json(game);
         } catch (e) {
