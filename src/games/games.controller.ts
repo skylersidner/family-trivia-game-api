@@ -63,17 +63,32 @@ const GamesController = {
         next: NextFunction,
     ) => {
         // Later we can check to see if the game is private and if the user is authorized to view it
+        const user = request.user;
         try {
-            const { gameId } = request.params;
-            const game = await Games.findById(gameId)
-                .populate({
-                    path: 'questions',
+            const creatorPopulate = {
+                path: 'questions',
+                populate: {
+                    path: 'answers',
                     populate: {
-                        path: 'answers',
-                        select: '-isCorrect',
+                        path: 'selectedBy',
+                        select: 'fullName',
                     },
-                })
-                .lean();
+                },
+            };
+            const participantPopulate = {
+                path: 'questions',
+                populate: {
+                    path: 'answers',
+                    select: '-isCorrect',
+                },
+            };
+            const { gameId } = request.params;
+            const game = await Games.findById(gameId);
+            await game?.populate(
+                game?.createdBy?._id.toString() === user?._id.toString()
+                    ? creatorPopulate
+                    : participantPopulate,
+            );
 
             return response.json(game);
         } catch (e) {
@@ -99,6 +114,7 @@ const GamesController = {
                     isCorrect: answer.isCorrect,
                     createdBy: user?._id,
                     updatedBy: user?._id,
+                    selectedBy: [],
                 }));
                 const createdAnswers = await Answers.insertMany(
                     answersToCreate,

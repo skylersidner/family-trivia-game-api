@@ -5,7 +5,7 @@ import { IAccount } from './accounts';
 export interface IAnswer extends IAudit {
     _id: ObjectId;
     text: string;
-    selectedBy?: PopulatedDoc<IAccount>;
+    selectedBy: PopulatedDoc<IAccount>[];
     isCorrect: boolean;
 }
 
@@ -23,7 +23,11 @@ const answerSchema = new Schema<IAnswer>(
             ref: 'Account',
             required: true,
         },
-        selectedBy: { type: Schema.Types.ObjectId, ref: 'Account' },
+        selectedBy: {
+            type: [Schema.Types.ObjectId],
+            ref: 'Account',
+            default: [],
+        },
     },
     { timestamps: true },
 );
