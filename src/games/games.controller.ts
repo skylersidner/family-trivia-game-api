@@ -65,13 +65,15 @@ const GamesController = {
         // Later we can check to see if the game is private and if the user is authorized to view it
         try {
             const { gameId } = request.params;
-            const game = await Games.findById(gameId).populate({
-                path: 'questions',
-                populate: {
-                    path: 'answers',
-                    select: '-isCorrect',
-                },
-            });
+            const game = await Games.findById(gameId)
+                .populate({
+                    path: 'questions',
+                    populate: {
+                        path: 'answers',
+                        select: '-isCorrect',
+                    },
+                })
+                .lean();
 
             return response.json(game);
         } catch (e) {
@@ -132,14 +134,37 @@ const GamesController = {
         try {
             const user = request.user;
             const { answerId } = request.body;
-            const answer = await Answers.findOneAndUpdate(
+            const { gameId, questionId } = request.params;
+            //Oh geez, jamming it in now
+            const question = await Questions.findById(questionId);
+            await Answers.updateMany(
+                {
+                    _id: { $in: question?.answers },
+                    selectedBy: user?._id,
+                },
+                {
+                    $pull: {
+                        selectedBy: user?._id,
+                    },
+                },
+            );
+            await Answers.findOneAndUpdate(
                 { _id: answerId },
                 {
                     $addToSet: { selectedBy: user?._id },
                 },
             );
+            const game = await Games.findById(gameId)
+                .populate({
+                    path: 'questions',
+                    populate: {
+                        path: 'answers',
+                        select: '-isCorrect',
+                    },
+                })
+                .lean();
 
-            return response.json({});
+            return response.json(game);
         } catch (e) {
             next(e);
             Sentry.captureMessage('Failed to find game');

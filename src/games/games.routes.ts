@@ -12,7 +12,7 @@ const GamesRoutes = (app: any) => {
         GamesController.addQuestions,
     );
     app.post(
-        `${gamesPath}}/:gameId/question/:questionId/answer`,
+        `${gamesPath}/:gameId/question/:questionId/answer`,
         ApiAuthentication.requiresAuthentication,
         GamesController.answerQuestion,
     );
