@@ -80,6 +80,10 @@ const GamesController = {
                 populate: {
                     path: 'answers',
                     select: '-isCorrect',
+                    populate: {
+                        path: 'selectedBy',
+                        select: 'fullName',
+                    },
                 },
             };
             const { gameId } = request.params;
@@ -176,6 +180,10 @@ const GamesController = {
                     populate: {
                         path: 'answers',
                         select: '-isCorrect',
+                        populate: {
+                            path: 'selectedBy',
+                            select: 'fullName',
+                        },
                     },
                 })
                 .lean();
