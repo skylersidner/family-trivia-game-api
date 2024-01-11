@@ -38,6 +38,10 @@ const GamesController = {
         next: NextFunction,
     ) => {
         try {
+            const { user } = request;
+            if (!user) {
+                throw Error('User is not authorized to create an event');
+            }
             const newEvent = request.body;
             // @ts-ignore
             if (!request.user?._id) {
