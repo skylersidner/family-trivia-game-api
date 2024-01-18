@@ -2,6 +2,12 @@ import { Schema, model, ObjectId, PopulatedDoc } from 'mongoose';
 import IAudit from './interfaces/audit.interfaces';
 import { IQuestion } from './questions';
 
+export const GAMES_STATUS = {
+    CREATED: 'CREATED',
+    STARTED: 'STARTED',
+    FINISHED: 'FINISHED',
+};
+
 export interface IGame extends IAudit {
     _id: ObjectId;
     status: string;
@@ -13,7 +19,11 @@ export interface IGame extends IAudit {
 
 const gameSchema = new Schema<IGame>(
     {
-        status: { type: String },
+        status: {
+            type: String,
+            enum: Object.values(GAMES_STATUS),
+            default: GAMES_STATUS.CREATED,
+        },
         title: { type: String },
         startDate: { type: Date, required: false, default: Date.now() },
         createdBy: { type: Schema.Types.ObjectId, ref: 'Account' },

@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import * as Sentry from '@sentry/node';
-import Games from '../models/games';
+import Games, { GAMES_STATUS } from '../models/games';
 import Questions from '../models/questions';
 import Answers, { IAnswer } from '../models/answers';
 
@@ -13,16 +13,17 @@ const GamesController = {
         try {
             const { gameId } = request.params;
             const update = request.body;
+            const game = await Games.findById(gameId).lean();
             // @ts-ignore
-            if (request.user?._id.toString() !== accountId) {
+            if (request.user?._id.toString() !== game?.createdBy.toString()) {
                 console.log('param gameId: ', gameId);
                 // @ts-ignore
                 console.log('session user id: ', request.user?._id);
                 throw Error('You are not authorized to update this account');
             }
             const updatedEvent = await Games.findOneAndUpdate(
-                { gameId },
-                { ...update, updatedBy: request.user?._id },
+                { _id: gameId },
+                { ...game, ...update, updatedBy: request.user?._id },
                 { new: true },
             );
 
@@ -93,7 +94,8 @@ const GamesController = {
             const { gameId } = request.params;
             const game = await Games.findById(gameId);
             await game?.populate(
-                game?.createdBy?._id.toString() === user?._id.toString()
+                game?.createdBy?._id.toString() === user?._id.toString() ||
+                    game?.status === GAMES_STATUS.FINISHED
                     ? creatorPopulate
                     : participantPopulate,
             );
@@ -159,6 +161,10 @@ const GamesController = {
             const user = request.user;
             const { answerId } = request.body;
             const { gameId, questionId } = request.params;
+            const game = await Games.findById(gameId);
+            if (game && game.status == GAMES_STATUS.FINISHED) {
+                throw Error('Game is already finished');
+            }
             //Oh geez, jamming it in now
             const question = await Questions.findById(questionId);
             await Answers.updateMany(
@@ -178,7 +184,7 @@ const GamesController = {
                     $addToSet: { selectedBy: user?._id },
                 },
             );
-            const game = await Games.findById(gameId)
+            const updatedGame = await Games.findById(gameId)
                 .populate({
                     path: 'questions',
                     populate: {
@@ -192,7 +198,7 @@ const GamesController = {
                 })
                 .lean();
 
-            return response.json(game);
+            return response.json(updatedGame);
         } catch (e) {
             next(e);
             Sentry.captureMessage('Failed to find game');
