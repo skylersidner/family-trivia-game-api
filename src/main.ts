@@ -23,7 +23,19 @@ declare global {
 
 const isProduction = process.env.NODE_ENV === 'production';
 
+const getRoutesFromApp = (app: any) => {
+    const allRoutes = app._router.stack;
+    return allRoutes
+        .filter((layer: any) => {
+            return layer.route?.path;
+        })
+        .map((layer: any) => {
+            return layer.route?.path;
+        });
+}
+
 try {
+    console.log('starting...')
     const app = express();
     const port = process.env.PORT || 3003;
 
@@ -76,6 +88,9 @@ try {
     GamesRoutes(app);
     AuthenticationRoutes(app);
     AccountRoutes(app);
+
+    // Log all registered routes;
+    console.log('All registered routes: ', getRoutesFromApp(app))
 
     //Error Handler Must Be Last In Middleware
     app.use(ErrorHandler);
