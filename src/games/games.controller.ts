@@ -19,7 +19,7 @@ const GamesController = {
                 console.log('param gameId: ', gameId);
                 // @ts-ignore
                 console.log('session user id: ', request.user?._id);
-                throw Error('You are not authorized to update this account');
+                throw Error('You are not authorized to update this game');
             }
             const updatedEvent = await Games.findOneAndUpdate(
                 { _id: gameId },
@@ -117,7 +117,12 @@ const GamesController = {
             const questions = request.body;
             let game;
             for (const question of questions) {
-                const { questionText, answers } = question;
+                const { text, answersString } = question;
+                let answers = question.answers;
+
+                if (answersString) {
+                    answers = JSON.parse(answersString) // support for Insomnia passing a JSON string for the data
+                }
 
                 const answersToCreate = answers.map((answer: IAnswer) => ({
                     text: answer.text,
@@ -126,11 +131,12 @@ const GamesController = {
                     updatedBy: user?._id,
                     selectedBy: [],
                 }));
+
                 const createdAnswers = await Answers.insertMany(
                     answersToCreate,
                 );
                 const createdQuestion = await Questions.create({
-                    text: questionText,
+                    text,
                     answers: createdAnswers.map((answer) => answer._id),
                 });
                 game = await Games.findOneAndUpdate(
