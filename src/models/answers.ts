@@ -7,14 +7,13 @@ export interface IAnswer extends IAudit {
     text: string;
     selectedBy: PopulatedDoc<IAccount>[];
     isCorrect: boolean;
-    isWinner: boolean;
+    winners: PopulatedDoc<IAccount>[];
 }
 
 const answerSchema = new Schema<IAnswer>(
     {
         text: { type: String, required: true },
         isCorrect: { type: Boolean, default: false, required: true },
-        isWinner: { type: Boolean, default: false, required: false },
         createdBy: {
             type: Schema.Types.ObjectId,
             ref: 'Account',
@@ -26,6 +25,11 @@ const answerSchema = new Schema<IAnswer>(
             required: true,
         },
         selectedBy: {
+            type: [Schema.Types.ObjectId],
+            ref: 'Account',
+            default: [],
+        },
+        winners: {
             type: [Schema.Types.ObjectId],
             ref: 'Account',
             default: [],
