@@ -114,7 +114,7 @@ const GamesController = {
         const user = request.user;
         try {
             const { gameId } = request.params;
-            const questions = request.body;
+            const { text, questions } = request.body;
             let game;
             for (const question of questions) {
                 const { text, answersString } = question;

@@ -13,7 +13,7 @@ export interface IAnswer extends IAudit {
 const answerSchema = new Schema<IAnswer>(
     {
         text: { type: String, required: true },
-        isCorrect: { type: Boolean, default: false, required: true },
+        isCorrect: { type: Boolean, default: false, required: false },
         createdBy: {
             type: Schema.Types.ObjectId,
             ref: 'Account',
