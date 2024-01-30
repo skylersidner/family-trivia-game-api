@@ -12,6 +12,7 @@ export interface IQuestion extends IAudit {
     text: string;
     answers: PopulatedDoc<IAnswer>;
     type: ANSWER_TYPE;
+    isDeleted: boolean;
 }
 
 const questionSchema = new Schema<IQuestion>(
@@ -26,6 +27,7 @@ const questionSchema = new Schema<IQuestion>(
             required: true,
             default: ANSWER_TYPE.SELECT_ONE,
         },
+        isDeleted: { type: Boolean, default: false },
     },
     { timestamps: true },
 );

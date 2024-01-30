@@ -8,6 +8,7 @@ export interface IAnswer extends IAudit {
     selectedBy: PopulatedDoc<IAccount>[];
     isCorrect: boolean;
     winners: PopulatedDoc<IAccount>[];
+    isDeleted: boolean;
 }
 
 const answerSchema = new Schema<IAnswer>(
@@ -34,6 +35,7 @@ const answerSchema = new Schema<IAnswer>(
             ref: 'Account',
             default: [],
         },
+        isDeleted: { type: Boolean, default: false },
     },
     { timestamps: true },
 );

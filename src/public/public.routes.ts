@@ -1,4 +1,4 @@
-import Events from '../models/games';
+import Games from '../models/games';
 const publicPath = `/public`;
 
 const PublicRoutes = (app: any) => {
@@ -14,11 +14,17 @@ const PublicRoutes = (app: any) => {
     });
     app.get(`${publicPath}/games`, async (request: any, response: any) => {
         console.log(`${publicPath}/games was called`);
-        const events = await Events.find({}).populate(
-            'createdBy',
-            'fullName email',
-        );
-        response.json(events);
+        const games = await Games.find({})
+            .populate({
+                path: 'createdBy',
+                select: 'fullName email',
+            })
+            .populate({
+                path: 'questions',
+                match: { isDeleted: { $ne: true } },
+            });
+
+        response.json(games);
     });
 };
 

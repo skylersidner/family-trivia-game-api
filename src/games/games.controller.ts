@@ -3,6 +3,7 @@ import * as Sentry from '@sentry/node';
 import Games, { GAMES_STATUS } from '../models/games';
 import Questions from '../models/questions';
 import Answers, { IAnswer } from '../models/answers';
+import { ObjectId } from 'mongodb';
 
 const GamesController = {
     update: async (
@@ -72,6 +73,7 @@ const GamesController = {
         try {
             const creatorPopulate = {
                 path: 'questions',
+                match: { isDeleted: { $ne: true } },
                 populate: {
                     path: 'answers',
                     populate: {
@@ -82,6 +84,7 @@ const GamesController = {
             };
             const participantPopulate = {
                 path: 'questions',
+                match: { isDeleted: { $ne: true } },
                 populate: {
                     path: 'answers',
                     select: '-isCorrect',
@@ -121,7 +124,7 @@ const GamesController = {
                 let answers = question.answers;
 
                 if (answersString) {
-                    answers = JSON.parse(answersString) // support for Insomnia passing a JSON string for the data
+                    answers = JSON.parse(answersString); // support for Insomnia passing a JSON string for the data
                 }
 
                 const answersToCreate = answers.map((answer: IAnswer) => ({
@@ -193,9 +196,63 @@ const GamesController = {
             const updatedGame = await Games.findById(gameId)
                 .populate({
                     path: 'questions',
+                    match: { isDeleted: { $ne: true } },
                     populate: {
                         path: 'answers',
                         select: '-isCorrect',
+                        populate: {
+                            path: 'selectedBy',
+                            select: 'fullName',
+                        },
+                    },
+                })
+                .lean();
+
+            return response.json(updatedGame);
+        } catch (e) {
+            next(e);
+            Sentry.captureMessage('Failed to find game');
+        }
+    },
+    deleteQuestion: async (
+        request: Request,
+        response: Response,
+        next: NextFunction,
+    ) => {
+        try {
+            const user = request.user;
+            const { gameId, questionId } = request.params;
+            const game = await Games.findById(gameId);
+            if (
+                !user ||
+                user?._id?.toString() !== game?.createdBy?.toString()
+            ) {
+                throw Error('User is not authorized to delete a question');
+            }
+            if (game && game.status == GAMES_STATUS.FINISHED) {
+                throw Error('Game is already finished');
+            }
+            // first delete the answers
+
+            const question = await Questions.findOneAndUpdate(
+                { _id: questionId },
+                { isDeleted: true },
+                { new: true },
+            );
+            await Answers.updateMany(
+                {
+                    _id: { $in: question?.answers },
+                },
+                {
+                    isDeleted: true,
+                },
+            );
+            const updatedGame = await Games.findById(gameId)
+                .populate({
+                    path: 'questions',
+                    match: { isDeleted: { $ne: true } },
+                    populate: {
+                        path: 'answers',
                         populate: {
                             path: 'selectedBy',
                             select: 'fullName',
