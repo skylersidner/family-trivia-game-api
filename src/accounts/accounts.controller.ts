@@ -5,8 +5,10 @@ import { headerKey } from '../authentication/api.authentication';
 import ApiKeys from '../models/api.keys';
 import { ObjectId } from 'mongodb';
 import bcrypt from 'bcrypt';
-import { omit } from 'lodash';
-import Games from "../models/games";
+import { omit, pick } from 'lodash';
+import Games from '../models/games';
+import jwt from 'jsonwebtoken';
+import { JWT_SECRET } from '../utils';
 
 const MAX_ACCOUNTS = 50;
 
@@ -114,17 +116,17 @@ const AccountsController = {
                 fullName,
                 password: hashedPassword,
             });
-            return response.json(account);
+            const userResponse = pick(account, ['fullName', 'email', '_id']);
+            const token = jwt.sign(userResponse, JWT_SECRET, {
+                expiresIn: '15m',
+            });
+            return response.json({ token });
         } catch (e) {
             next(e);
             Sentry.captureMessage('Failed to create account');
         }
     },
-    me: async (
-        request: Request,
-        response: Response,
-        next: NextFunction,
-    ) => {
+    me: async (request: Request, response: Response, next: NextFunction) => {
         try {
             return response.json(request.user);
         } catch (e) {
@@ -143,7 +145,9 @@ const AccountsController = {
             return response.json(result || []);
         } catch (e) {
             next(e);
-            Sentry.captureMessage(`Failed to fetch games for accountId: ${accountId}`);
+            Sentry.captureMessage(
+                `Failed to fetch games for accountId: ${accountId}`,
+            );
         }
     },
 };

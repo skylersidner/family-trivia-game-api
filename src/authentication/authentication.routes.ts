@@ -39,17 +39,7 @@ const AuthenticationRoutes = (app: any) => {
             { _id: user._id },
             { lastLogin: new Date() },
         );
-        const userResponse = pick(user, [
-            'fullName',
-            'phoneNumber',
-            'email',
-            'messageTypes',
-            '_id',
-            'pricingTier',
-            'billingPeriod',
-            'useSwearWords',
-            'role',
-        ]);
+        const userResponse = pick(user, ['fullName', 'email', '_id']);
         const token = jwt.sign(userResponse, JWT_SECRET, {
             expiresIn: '24h',
         });
