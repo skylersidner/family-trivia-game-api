@@ -118,7 +118,7 @@ const AccountsController = {
             });
             const userResponse = pick(account, ['fullName', 'email', '_id']);
             const token = jwt.sign(userResponse, JWT_SECRET, {
-                expiresIn: '15m',
+                expiresIn: '4h',
             });
             return response.json({ token });
         } catch (e) {
