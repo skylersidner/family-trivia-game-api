@@ -3,7 +3,6 @@ import * as Sentry from '@sentry/node';
 import Games, { GAMES_STATUS } from '../models/games';
 import Questions from '../models/questions';
 import Answers, { IAnswer } from '../models/answers';
-import { ObjectId } from 'mongodb';
 
 const GamesController = {
     update: async (
@@ -117,7 +116,7 @@ const GamesController = {
         const user = request.user;
         try {
             const { gameId } = request.params;
-            const { text, questions } = request.body;
+            const { questions } = request.body;
             let game;
             for (const question of questions) {
                 const { text, answersString } = question;
@@ -141,6 +140,7 @@ const GamesController = {
                 const createdQuestion = await Questions.create({
                     text,
                     answers: createdAnswers.map((answer) => answer._id),
+                    type: question.type,
                 });
                 game = await Games.findOneAndUpdate(
                     {
