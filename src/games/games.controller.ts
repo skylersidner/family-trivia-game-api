@@ -168,7 +168,7 @@ const GamesController = {
     ) => {
         try {
             const user = request.user;
-            const { answerId } = request.body;
+            const { answerIds } = request.body;
             const { gameId, questionId } = request.params;
             const game = await Games.findById(gameId);
             if (game && game.status == GAMES_STATUS.FINISHED) {
@@ -187,8 +187,8 @@ const GamesController = {
                     },
                 },
             );
-            await Answers.findOneAndUpdate(
-                { _id: answerId },
+            await Answers.updateMany(
+                { _id: { $in: answerIds } },
                 {
                     $addToSet: { selectedBy: user?._id },
                 },
