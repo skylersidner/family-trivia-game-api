@@ -7,6 +7,7 @@ export interface IAnswer extends IAudit {
     text: string;
     selectedBy: PopulatedDoc<IAccount>[];
     isCorrect: boolean;
+    points: number;
     winners: PopulatedDoc<IAccount>[];
     isDeleted: boolean;
 }
@@ -15,6 +16,7 @@ const answerSchema = new Schema<IAnswer>(
     {
         text: { type: String, required: true },
         isCorrect: { type: Boolean, default: false, required: false },
+        points: { type: Number, default: 1, required: true },
         createdBy: {
             type: Schema.Types.ObjectId,
             ref: 'Account',
