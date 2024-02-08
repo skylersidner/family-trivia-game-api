@@ -161,6 +161,37 @@ const GamesController = {
             Sentry.captureMessage('Failed to find game');
         }
     },
+    updateQuestion: async (
+        request: Request,
+        response: Response,
+        next: NextFunction,
+    ) => {
+        try {
+            const user = request.user;
+            const question = request.body;
+            const { gameId, questionId } = request.params;
+
+            // TODO: Removing restriction for now, but probably need another status for games that are "in progress"...
+            // const game = await Games.findById(gameId);
+            // if (game && game.status == GAMES_STATUS.FINISHED) {
+            //     throw Error('Game is already finished');
+            // }
+
+            // TODO: validate question object
+            await Questions.updateOne(
+                {
+                    _id: questionId
+                },
+                question
+            );
+            const updatedGame = await Games.findById(gameId);
+
+            return response.json(updatedGame);
+        } catch (e) {
+            next(e);
+            Sentry.captureMessage('Failed to find game');
+        }
+    },
     answerQuestion: async (
         request: Request,
         response: Response,
