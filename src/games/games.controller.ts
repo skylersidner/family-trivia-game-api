@@ -75,10 +75,13 @@ const GamesController = {
                 match: { isDeleted: { $ne: true } },
                 populate: {
                     path: 'answers',
-                    populate: {
+                    populate: [{
                         path: 'selectedBy',
                         select: 'fullName',
-                    },
+                    },{
+                        path: 'winners',
+                        select: 'fullName',
+                    }]
                 },
             };
             const participantPopulate = {
@@ -87,10 +90,13 @@ const GamesController = {
                 populate: {
                     path: 'answers',
                     select: '-isCorrect',
-                    populate: {
+                    populate: [{
                         path: 'selectedBy',
+                        select: 'fullName'
+                    },{
+                        path: 'winners',
                         select: 'fullName',
-                    },
+                    }],
                 },
             };
             const { gameId } = request.params;
@@ -161,15 +167,14 @@ const GamesController = {
             Sentry.captureMessage('Failed to find game');
         }
     },
-    updateQuestion: async (
+    updateQuestion: async ( // TODO: unsure if this works...
         request: Request,
         response: Response,
         next: NextFunction,
     ) => {
         try {
-            const user = request.user;
             const question = request.body;
-            const { gameId, questionId } = request.params;
+            const { questionId } = request.params;
 
             // TODO: Removing restriction for now, but probably need another status for games that are "in progress"...
             // const game = await Games.findById(gameId);
@@ -178,15 +183,18 @@ const GamesController = {
             // }
 
             // TODO: validate question object
-            await Questions.updateOne(
+
+            console.log('question: ', question)
+            const result = await Questions.updateOne(
                 {
                     _id: questionId
                 },
                 question
             );
-            const updatedGame = await Games.findById(gameId);
+            console.log('updateQuestion result: ', result)
+            const updatedQuestion = await Questions.findById(questionId);
 
-            return response.json(updatedGame);
+            return response.json(updatedQuestion);
         } catch (e) {
             next(e);
             Sentry.captureMessage('Failed to find game');
@@ -293,6 +301,31 @@ const GamesController = {
                 .lean();
 
             return response.json(updatedGame);
+        } catch (e) {
+            next(e);
+            Sentry.captureMessage('Failed to find game');
+        }
+    },
+    updateAnswer: async (
+        request: Request,
+        response: Response,
+        next: NextFunction,
+    ) => {
+        try {
+            const answer = request.body;
+            const { answerId } = request.params;
+
+            // TODO: validate answer object
+            const result = await Answers.updateOne(
+                {
+                    _id: answerId
+                },
+                answer
+            );
+            console.log('updateAnswer result: ', result)
+            const updatedAnswer = await Answers.findById(answerId);
+
+            return response.json(updatedAnswer);
         } catch (e) {
             next(e);
             Sentry.captureMessage('Failed to find game');

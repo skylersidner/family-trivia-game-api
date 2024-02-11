@@ -21,6 +21,11 @@ const GamesRoutes = (app: any) => {
         ApiAuthentication.requiresAuthentication,
         GamesController.updateQuestion,
     );
+    app.patch(
+        `${gamesPath}/:gameId/question/:questionId/answer/:answerId`,
+        ApiAuthentication.requiresAuthentication,
+        GamesController.updateAnswer,
+    );
     app.delete(
         `${gamesPath}/:gameId/question/:questionId`,
         ApiAuthentication.requiresAuthentication,
