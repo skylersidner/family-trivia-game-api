@@ -312,7 +312,7 @@ const GamesController = {
         next: NextFunction,
     ) => {
         try {
-            const answer = request.body;
+            const answer = request.body.answer;
             const { answerId } = request.params;
 
             // TODO: validate answer object
